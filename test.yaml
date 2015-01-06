@@ -1,0 +1,902 @@
+swagger: '2.0'
+info:
+  title: Subscriptions API
+  description: Manage your email subscriptions via API
+  version: "1.0.0"
+# the domain of the service
+host: local.nimbleBuy.com
+# array of all schemes that your API supports
+schemes:
+  - http
+  - https
+# will be prefixed to all paths
+basePath: /v1/subscriptions
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /customLists:
+    get:
+      description: Returns information about the existing Custom Lists. The response includes the name and other details about each list.
+      operationId: getCustomList
+      produces:
+        - application/json
+      parameters:
+        - name: email
+          in: query
+          description: Get lists by subscriber's email
+          required: false
+          type: string
+        - name: name
+          in: query
+          description: Get lists by name
+          required: false
+          type: string
+        - name: type
+          in: query
+          description: Type of custom list.
+          required: false
+          type: string
+        - name: sort
+          in: query
+          description: Sorting by property with ordering separated by '_' e.g. 'name_asc'
+          required: false
+          type: string
+        - name: page
+          in: query
+          description: Page number for pagination
+          required: false
+          type: integer
+          format: int32
+        - name: itemsPerPage
+          in: query
+          description: Items per page
+          required: false
+          type: integer
+          format: int32
+      tags:
+        - Custom List
+      responses:
+        '200':
+          description: An array of custom lists
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/customList'
+        '400':
+          description: Request parameters are incorrect
+          schema:
+            $ref: '#/definitions/error'
+        '401':
+          description: The request requires HTTP authentication
+          schema:
+            $ref: '#/definitions/error'
+        '403': 
+          description: The server understood the request but refused to fulfill it
+          schema:
+            $ref: '#/definitions/error'
+        '404': 
+          description: The requested resource is not available
+          schema:
+            $ref: '#/definitions/error'
+        '405': 
+          description: The method is not allowed
+          schema:
+            $ref: '#/definitions/error'
+        default:
+          description: Unexpected server error
+          schema:
+            $ref: '#/definitions/error'
+  /customLists/batch:
+    post:
+      description: Imports the custom lists from source
+      operationId: importCustomLists
+      produces:
+        - application/json
+      parameters:
+        - name: source
+          in: query
+          description: Encoded URL of a source file to import custom lists
+          required: true
+          type: string
+      tags:
+        - Custom List
+      responses:
+        '201': 
+          description: Custom lists created
+          schema:
+            type: array
+            $ref: '#/definitions/customList'
+        '400':
+          description: Request parameters are incorrect
+          schema:
+            $ref: '#/definitions/error'
+        '401':
+          description: The request requires HTTP authentication
+          schema:
+            $ref: '#/definitions/error'
+        '403': 
+          description: The server understood the request but refused to fulfill it
+          schema:
+            $ref: '#/definitions/error'
+        '404': 
+          description: The requested resource is not available
+          schema:
+            $ref: '#/definitions/error'
+        '405': 
+          description: The method is not allowed
+          schema:
+            $ref: '#/definitions/error'
+        '500':
+          description: Custom list with {name} exists
+          schema:
+            $ref: '#/definitions/error'
+        '501':
+          description: Custom lists were not imported
+          schema:
+            $ref: '#/definitions/error'
+        default:
+          description: Unexpected server error
+          schema:
+            $ref: '#/definitions/error'
+    delete:
+      description: Deletes the custom lists by IDs from source
+      operationId: deleteCustomLists
+      produces:
+        - application/json
+      parameters:
+        - name: source
+          in: query
+          description: Encoded URL of a source file to delete custom lists
+          required: true
+          type: string
+      tags:
+        - Custom List
+      responses:
+        '201': 
+          description: Custom lists deleted
+          schema:
+            type: array
+            $ref: '#/definitions/customList'
+        '400':
+          description: Request parameters are incorrect
+          schema:
+            $ref: '#/definitions/error'
+        '401':
+          description: The request requires HTTP authentication
+          schema:
+            $ref: '#/definitions/error'
+        '403': 
+          description: The server understood the request but refused to fulfill it
+          schema:
+            $ref: '#/definitions/error'
+        '404': 
+          description: The requested resource is not available
+          schema:
+            $ref: '#/definitions/error'
+        '405': 
+          description: The method is not allowed
+          schema:
+            $ref: '#/definitions/error'
+        '500':
+          description: Custom list with {id} doesn't exist
+          schema:
+            $ref: '#/definitions/error'
+        '501':
+          description: Custom lists were not deleted
+          schema:
+            $ref: '#/definitions/error'
+        default:
+          description: Unexpected server error
+          schema:
+            $ref: '#/definitions/error'
+  /customList/create:
+    post:
+      description: Creates a new custom list. Duplicates are not allowed
+      operationId: createCustomList
+      produces:
+        - application/json
+      parameters:
+        - name: customList
+          in: body
+          description: Email Custom List to create
+          required: true
+          schema:
+            $ref: '#/definitions/customListData'
+      tags:
+        - Custom List
+      responses:
+        '201': 
+          description: Custom list created
+          schema:
+            $ref: '#/definitions/customList'
+        '400':
+          description: Request parameters are incorrect
+          schema:
+            $ref: '#/definitions/error'
+        '401':
+          description: The request requires HTTP authentication
+          schema:
+            $ref: '#/definitions/error'
+        '403': 
+          description: The server understood the request but refused to fulfill it
+          schema:
+            $ref: '#/definitions/error'
+        '404': 
+          description: The requested resource is not available
+          schema:
+            $ref: '#/definitions/error'
+        '405': 
+          description: The method is not allowed
+          schema:
+            $ref: '#/definitions/error'
+        '500':
+          description: Custom list with such name exists
+          schema:
+            $ref: '#/definitions/error'
+        '501':
+          description: Custom list was not created
+          schema:
+            $ref: '#/definitions/error'
+        default:
+          description: Unexpected server error
+          schema:
+            $ref: '#/definitions/error'
+  /customList/{id}:
+    get:
+      description: Returns a custom list based on a single ID 
+      operationId: getCustomListById
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of email custom list to fetch
+          required: true
+          type: integer
+          format: int64
+      tags:
+        - Custom List
+      responses:
+        '200':
+          description: Custom list response
+          schema:
+            $ref: '#/definitions/customList'
+        '400':
+          description: Request parameters are incorrect
+          schema:
+            $ref: '#/definitions/error'
+        '401':
+          description: The request requires HTTP authentication
+          schema:
+            $ref: '#/definitions/error'
+        '403': 
+          description: The server understood the request but refused to fulfill it
+          schema:
+            $ref: '#/definitions/error'
+        '404': 
+          description: The requested resource is not available
+          schema:
+            $ref: '#/definitions/error'
+        '405': 
+          description: The method is not allowed
+          schema:
+            $ref: '#/definitions/error'
+        '500':
+          description: Custom list with such ID doesn't exist
+          schema:
+            $ref: '#/definitions/error'
+        default:
+          description: Unexpected server error
+          schema:
+            $ref: '#/definitions/error'    
+    put:
+      description: Change the custom list based on a single ID
+      operationId: changeCustomList
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of custom list to change
+          required: true
+          type: integer
+          format: int64
+        - name: localeId
+          in: query
+          description: ID of locale site to change data for specific locale. Default locale is used if parameter is not defined
+          required: false
+          type: integer
+          format: int64
+        - name: customListData
+          in: body
+          description: Custom List data to replace
+          required: true
+          schema:
+            $ref: '#/definitions/customListData'
+      tags:
+        - Custom List
+      responses:
+        '200':
+          description: Custom list changed successfully
+          schema:
+            $ref: '#/definitions/customList'
+        '400':
+          description: Request parameters are incorrect
+          schema:
+            $ref: '#/definitions/error'
+        '401':
+          description: The request requires HTTP authentication
+          schema:
+            $ref: '#/definitions/error'
+        '403': 
+          description: The server understood the request but refused to fulfill it
+          schema:
+            $ref: '#/definitions/error'
+        '404': 
+          description: The requested resource is not available
+          schema:
+            $ref: '#/definitions/error'
+        '405': 
+          description: The method is not allowed
+          schema:
+            $ref: '#/definitions/error'
+        '500':
+          description: Custom list with such ID doesn't exist
+          schema:
+            $ref: '#/definitions/error'
+        default:
+          description: Unexpected server error
+          schema:
+            $ref: '#/definitions/error'
+    delete:
+      description: Deletes a single custom list based on the ID supplied
+      operationId: deleteCustomList
+      parameters:
+        - name: id
+          in: path
+          description: ID of custom list to delete
+          required: true
+          type: integer
+          format: int64
+      tags:
+        - Custom List
+      responses:
+        '204':
+          description: Custom list deleted
+          schema:
+            $ref: '#/definitions/customList'
+        '400':
+          description: Request parameters are incorrect
+          schema:
+            $ref: '#/definitions/error'
+        '401':
+          description: The request requires HTTP authentication
+          schema:
+            $ref: '#/definitions/error'
+        '403': 
+          description: The server understood the request but refused to fulfill it
+          schema:
+            $ref: '#/definitions/error'
+        '404': 
+          description: The requested resource is not available
+          schema:
+            $ref: '#/definitions/error'
+        '405': 
+          description: The method is not allowed
+          schema:
+            $ref: '#/definitions/error'
+        '500':
+          description: Custom list with such ID doesn't exist
+          schema:
+            $ref: '#/definitions/error'
+        default:
+          description: Unexpected server error
+          schema:
+            $ref: '#/definitions/error'
+  /customList/{id}/subscribers:
+    get:
+      description: Returns the custom list's subscribers 
+      operationId: getCustomListsSubscribers
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of email custom list to fetch
+          required: true
+          type: integer
+          format: int64
+        - name: email
+          in: query
+          description: Get lists by subscriber's email
+          required: false
+          type: string
+        - name: sort
+          in: query
+          description: Sorting by property with ordering separated by '_' e.g. 'email_asc'
+          required: false
+          type: string
+        - name: page
+          in: query
+          description: Page number for pagination
+          required: false
+          type: integer
+          format: int32
+        - name: itemsPerPage
+          in: query
+          description: Items per page
+          required: false
+          type: integer
+          format: int32
+      tags:
+        - Custom List
+      responses:
+        '200':
+          description: Custom list subscriber response
+          schema:
+            type: array
+            $ref: '#/definitions/customListSubscriber'
+        '400':
+          description: Request parameters are incorrect
+          schema:
+            $ref: '#/definitions/error'
+        '401':
+          description: The request requires HTTP authentication
+          schema:
+            $ref: '#/definitions/error'
+        '403': 
+          description: The server understood the request but refused to fulfill it
+          schema:
+            $ref: '#/definitions/error'
+        '404': 
+          description: The requested resource is not available
+          schema:
+            $ref: '#/definitions/error'
+        '405': 
+          description: The method is not allowed
+          schema:
+            $ref: '#/definitions/error'
+        '500':
+          description: Custom list with such ID doesn't exist
+          schema:
+            $ref: '#/definitions/error'
+        default:
+          description: Unexpected server error
+          schema:
+            $ref: '#/definitions/error'    
+  /customList/{id}/subscription:
+    post:
+      description: Subscribes new or re-subscribe unactive custom list subscriber  
+      operationId: addSubscriberToCustomList
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of custom list to fetch
+          required: true
+          type: integer
+          format: int64
+        - name: customListSubscriberData
+          in: body
+          description: Custom list subscriber data
+          required: true
+          schema:
+            $ref: '#/definitions/customListSubscriberData'
+      tags:
+        - Custom List
+      responses:
+        '200':
+          description: Custom list subscriber successfully added
+          schema:
+            $ref: '#/definitions/customListSubscriberData'
+        '400':
+          description: Request parameters are incorrect
+          schema:
+            $ref: '#/definitions/error'
+        '401':
+          description: The request requires HTTP authentication
+          schema:
+            $ref: '#/definitions/error'
+        '403': 
+          description: The server understood the request but refused to fulfill it
+          schema:
+            $ref: '#/definitions/error'
+        '404': 
+          description: The requested resource is not available
+          schema:
+            $ref: '#/definitions/error'
+        '405': 
+          description: The method is not allowed
+          schema:
+            $ref: '#/definitions/error'
+        '500':
+          description: Custom list subscriber with such ID doesn't exist
+          schema:
+            $ref: '#/definitions/error'
+        default:
+          description: Unexpected server error
+          schema:
+            $ref: '#/definitions/error'    
+    put:
+      description: Changes subscription status to unsubscribed 
+      operationId: changeCustomListSubscriberStatus
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of custom list to fetch
+          required: true
+          type: integer
+          format: int64
+        - name: subscriberId
+          in: query
+          description: ID of custom list subscriber to fetch
+          required: true
+          type: integer
+          format: int64
+      tags:
+        - Custom List
+      responses:
+        '200':
+          description: Custom list subscriber unsubscribed
+          schema:
+            $ref: '#/definitions/customList'
+        '400':
+          description: Request parameters are incorrect
+          schema:
+            $ref: '#/definitions/error'
+        '401':
+          description: The request requires HTTP authentication
+          schema:
+            $ref: '#/definitions/error'
+        '403': 
+          description: The server understood the request but refused to fulfill it
+          schema:
+            $ref: '#/definitions/error'
+        '404': 
+          description: The requested resource is not available
+          schema:
+            $ref: '#/definitions/error'
+        '405': 
+          description: The method is not allowed
+          schema:
+            $ref: '#/definitions/error'
+        '500':
+          description: Custom list with such ID doesn't exist
+          schema:
+            $ref: '#/definitions/error'
+        default:
+          description: Unexpected server error
+          schema:
+            $ref: '#/definitions/error'    
+    delete:
+      description: Removes subscriber from custom list
+      operationId: deleteSubscriberFromCustomList
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of custom list subscriber to delete
+          required: true
+          type: integer
+          format: int64
+        - name: subscriberId
+          in: query
+          description: ID of custom list subscriber to fetch
+          required: true
+          type: integer
+          format: int64
+      tags:
+        - Custom List
+      responses:
+        '200':
+          description: Custom list subscriber deleted successfully
+          schema:
+            $ref: '#/definitions/customList'
+        '400':
+          description: Request parameters are incorrect
+          schema:
+            $ref: '#/definitions/error'
+        '401':
+          description: The request requires HTTP authentication
+          schema:
+            $ref: '#/definitions/error'
+        '403': 
+          description: The server understood the request but refused to fulfill it
+          schema:
+            $ref: '#/definitions/error'
+        '404': 
+          description: The requested resource is not available
+          schema:
+            $ref: '#/definitions/error'
+        '405': 
+          description: The method is not allowed
+          schema:
+            $ref: '#/definitions/error'
+        '501':
+          description: Custom list with such ID doesn't exist
+          schema:
+            $ref: '#/definitions/error'
+        default:
+          description: Unexpected server error
+          schema:
+            $ref: '#/definitions/error'
+  /customList/{id}/subscription/batch:
+    post:
+      description: Imports the custom list subscribers from source
+      operationId: importCustomLists
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of email custom list to fetch
+          required: true
+          type: integer
+          format: int64
+        - name: source
+          in: query
+          description: Encoded URL of a source file to import custom list subscribers
+          required: true
+          type: string
+      tags:
+        - Custom List
+      responses:
+        '201': 
+          description: Custom list subscribers added
+          schema:
+            type: array
+            $ref: '#/definitions/customList'
+        '400':
+          description: Request parameters are incorrect
+          schema:
+            $ref: '#/definitions/error'
+        '401':
+          description: The request requires HTTP authentication
+          schema:
+            $ref: '#/definitions/error'
+        '403': 
+          description: The server understood the request but refused to fulfill it
+          schema:
+            $ref: '#/definitions/error'
+        '404': 
+          description: The requested resource is not available
+          schema:
+            $ref: '#/definitions/error'
+        '405': 
+          description: The method is not allowed
+          schema:
+            $ref: '#/definitions/error'
+        '500':
+          description: Custom list with {ID} doesn't exists
+          schema:
+            $ref: '#/definitions/error'
+        '501':
+          description: Custom list subscribers were not subscribed
+          schema:
+            $ref: '#/definitions/error'
+        default:
+          description: Unexpected server error
+          schema:
+            $ref: '#/definitions/error'
+    put:
+      description: Imports the custom list subscribers from source
+      operationId: importCustomListSubscribers
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of email custom list to fetch
+          required: true
+          type: integer
+          format: int64
+        - name: source
+          in: query
+          description: Encoded URL of a source file to import custom lists subscribers
+          required: true
+          type: string
+      tags:
+        - Custom List
+      responses:
+        '201': 
+          description: Custom list subscribers were successfully unsubscribed
+          schema:
+            type: array
+            $ref: '#/definitions/customList'
+        '400':
+          description: Request parameters are incorrect
+          schema:
+            $ref: '#/definitions/error'
+        '401':
+          description: The request requires HTTP authentication
+          schema:
+            $ref: '#/definitions/error'
+        '403': 
+          description: The server understood the request but refused to fulfill it
+          schema:
+            $ref: '#/definitions/error'
+        '404': 
+          description: The requested resource is not available
+          schema:
+            $ref: '#/definitions/error'
+        '405': 
+          description: The method is not allowed
+          schema:
+            $ref: '#/definitions/error'
+        '500':
+          description: Custom list with {name} exists
+          schema:
+            $ref: '#/definitions/error'
+        '501':
+          description: Custom list subscribers were not unsubscribed
+          schema:
+            $ref: '#/definitions/error'
+        default:
+          description: Unexpected server error
+          schema:
+            $ref: '#/definitions/error'
+    delete:
+      description: Delete the custom list subscribers by IDs from source
+      operationId: deleteCustomLists
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of email custom list to fetch
+          required: true
+          type: integer
+          format: int64
+        - name: source
+          in: query
+          description: Encoded URL of a source file to delete custom lists
+          required: true
+          type: string
+      tags:
+        - Custom List
+      responses:
+        '201': 
+          description: Custom list subscribers deleted
+          schema:
+            type: array
+            $ref: '#/definitions/customList'
+        '400':
+          description: Request parameters are incorrect
+          schema:
+            $ref: '#/definitions/error'
+        '401':
+          description: The request requires HTTP authentication
+          schema:
+            $ref: '#/definitions/error'
+        '403': 
+          description: The server understood the request but refused to fulfill it
+          schema:
+            $ref: '#/definitions/error'
+        '404': 
+          description: The requested resource is not available
+          schema:
+            $ref: '#/definitions/error'
+        '405': 
+          description: The method is not allowed
+          schema:
+            $ref: '#/definitions/error'
+        '500':
+          description: Custom list with {id} doesn't exist
+          schema:
+            $ref: '#/definitions/error'
+        '501':
+          description: Custom lists were not deleted
+          schema:
+            $ref: '#/definitions/error'
+        default:
+          description: Unexpected server error
+          schema:
+            $ref: '#/definitions/error'
+definitions:
+  customList:
+    properties:
+      id:
+        type: integer
+        format: int64
+        description: Unique identifier representing a specific custom list.
+      listName:
+        type: string
+        description: Name that will be displayed for merchant.
+      displayName:
+        type: string
+        description: Name that will be displayed for subscriber.
+      notes:
+        type: string
+        description: Notes for custom list
+      createdDate:
+        type: string
+        description: Date when list was created 
+      emailsCount:
+        type: integer
+        format: int64
+        description: Count of emails subscribed to list
+      merchantId:
+        type: integer
+        format: int64
+        description: Unique identifier representing a specific merchant assigned to list
+      wlAccountId:
+        type: integer
+        format: int64
+        description: Unique identifier representing a publisher who created the list
+      active:
+        type: boolean
+        description: Is list active. List is deleted if active equals 'false' 
+  customListData:
+    properties:
+      listName:
+        type: string
+        description: Name that will be displayed for merchant.
+      displayName:
+        type: string
+        description: Name that will be displayed for merchant.
+      notes:
+        type: string
+        description: Notes for list.
+  customListSubscriber:
+    properties:
+      id:
+        type: integer
+        format: int64
+        description: Unique identifier representing a specific custom list subscriber
+      email:
+        type: string
+        description: Subscriber'e email address
+      subscriberId:
+        type: integer
+        format: int64
+        description: Unique identifier representing a subscriber
+      dateAdded:
+        type: string
+        description: DateTime when subscriber was added to the list
+      unsubscribeDate:
+        type: string
+        description: DateTime when subscriber was unsubscribed from the list
+      unsubscribeReason:
+        type: integer
+        format: int32
+        description: Unsubscription reason
+      sourceType:
+        type: integer
+        format: int32
+        description: Subscription source type
+      active:
+        type: boolean
+        description: Is subscription active
+  customListSubscriberData:
+    properties:
+      firstName:
+        type: string
+        description: First name
+      lastName:
+        type: string
+        description: Last name
+      email:
+        type: string
+        description: Email address
+      gender:
+        type: string
+        description: Gender
+      dateOfBirth:
+        type: string
+        description: Date of birth
+      zipCode:
+        type: string
+        description: Zip/post code
+  error:
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
